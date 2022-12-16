@@ -1,0 +1,93 @@
+service: ${self:custom.settings.common.projectName}-api
+frameworkVersion: '3'
+
+plugins:
+  #- serverless-domain-manager
+  - serverless-python-requirements
+  # - serverless-plugin-warmup
+  - serverless-wsgi
+  # - serverless-prune-plugin
+  - serverless-offline
+
+custom:
+  settings: ${file(../serverless-settings.yml)}
+  version: ${file(./src/version.json):version}
+  wsgi:
+    app: app.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: 'non-linux'
+    noDeploy:
+      - botocore
+      - boto3
+
+provider:
+  runtime: python3.9
+  architecture: x86_64
+  timeout: 30
+  name: aws
+  environment:
+    APP_ENV: ${opt:stage, 'dev'}
+    APP_VERSION: ${self:custom.version}
+    APP_NAME: ${self:service}
+    LAMBDA_ENV: true
+    API_URL: 'https://v7xfp2c0c3.execute-api.ca-central-1.amazonaws.com/${sls:stage}/' # fixme
+    description: Deployment v${self:custom.version}
+  stackTags:
+    project: ${self:custom.settings.common.projectName}
+    version: ${self:custom.version}
+    env: ${opt:stage,'dev'}
+  tags:
+    project: ${self:custom.settings.common.projectName}
+    version: ${self:custom.version}
+    env: ${opt:stage,'dev'}
+  stage: ${opt:stage,'dev'}
+  region: ${self:custom.settings.common.region}
+  layers:
+    - arn:aws:lambda:${aws:region}:017000801446:layer:AWSLambdaPowertoolsPython:15
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+          Resource: "*"
+
+
+
+functions:
+  api:
+    memorySize: 128
+    description: HelloWorld v${self:custom.version}
+    events:
+      - http:
+          path: /
+          method: ANY
+      - http:
+          path: '/{proxy+}'
+          method: ANY
+    handler: wsgi_handler.handler
+
+  task_runner:
+    handler: task_runner.handler
+
+  pong:
+    handler: ping.pong
+
+  connect:
+    handler: handler.connect
+    # fixme: auth
+    events:
+       - websocket:
+           route: $connect
+       - websocket:
+           route: $disconnect
+       - websocket:
+           route: $default
+
+
+package:
+  excludeDevDependencies: false
+  patterns:
+    - "!.venv/**"
+    - "!node_modules/**"

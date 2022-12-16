@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/socket.io-2.3.1.js" crossorigin="anonymous"></script>
+    <title>WS Test</title>
+</head>
+<body>
+<button id="clear">Click Here</button>
+
+<pre id="log">
+</pre>
+</body>
+
+<script>
+    document.getElementById("clear").onclick = () => {
+        document.getElementById("log").innerHTML = "";
+    }
+
+    const log = (msg) => {
+        console.log(msg);
+        const el = document.getElementById("log");
+        el.innerText = el.innerText + "\n" + msg;
+
+    }
+    //const socketUri = "ws://0.0.0.0:3001"
+    const socketUri = "wss://v7xfp2c0c3.execute-api.ca-central-1.amazonaws.com/dev"
+
+    let socket = new WebSocket(socketUri);
+
+    socket.onopen = function(e) {
+      console.log('socket on onopen');
+      const info = JSON.stringify({action: "message"});
+      socket.send(info);
+    };
+
+    socket.onmessage = function(event) {
+      console.log(`[message] Data received from server: ${event.data}`);
+    };
+
+    socket.onclose = function(event) {
+      if (event.wasClean) {
+        console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+      } else {
+        console.log(`[close] Connection died; code=${event.code}`);
+      }
+    };
+
+    socket.onerror = function(error) {
+      console.log(`[error] ${error.message}`);
+    };
+</script>
+</html>

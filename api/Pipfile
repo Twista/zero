@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Flask = "*"
+loguru = "*"
+bleach = "*"
+boto3 = "*"
+click = "*"
+werkzeug = "*"
+requests = "*"
+requests-aws4auth = "*"
+requests-aws-sign = "*"
+
+[dev-packages]
+pytest-watch = "*"
+pytest-cov = "*"
+serverless-wsgi = "*"
+
+[requires]
+python_version = "3.9"

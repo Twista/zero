@@ -1,0 +1,27 @@
+service: ${self:custom.settings.common.projectName}-app
+frameworkVersion: '3'
+
+plugins:
+  - serverless-finch
+
+custom:
+  settings: ${file(../serverless-settings.yml)}
+  version: ${file(../api/src/version.json):version}
+  client:
+    bucketName: ${self:custom.settings.app.bucketName}
+    distributionFolder: ${self:custom.settings.app.distFolder}
+    indexDocument: index.html
+    errorDocument: index.html
+
+provider:
+  name: aws
+  stackTags:
+    project: ${self:custom.settings.common.projectName}
+    version: ${self:custom.version}
+    env: ${opt:stage,'dev'}
+  tags:
+    project: ${self:custom.settings.common.projectName}
+    version: ${self:custom.version}
+    env: ${opt:stage,'dev'}
+  stage: ${opt:stage,'dev'}
+  region: ${self:custom.settings.common.region}

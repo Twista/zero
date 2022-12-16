@@ -1,0 +1,14 @@
+common:
+  projectName: twisted
+  region: ca-central-1 # e.g. eu-central-1
+  runtime: python3.9
+  deploymentBucket: twisted-deployments # your S3 bucket
+  logRetentionInDays: 90
+  tags:
+
+tracing:
+  apiGateway: false
+  lambda: false
+app:
+  bucketName: twista-static
+  distFolder: dist
